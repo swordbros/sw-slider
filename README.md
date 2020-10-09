@@ -3,7 +3,7 @@
 # Introduction
 
 This package supports PHP 7.1 and higher 
-
+You can easily add different view sliders to your website using this plugin
 # Download
 
 ## Composer 
