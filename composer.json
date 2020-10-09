@@ -36,7 +36,7 @@
 	},
     "scripts": {
         "post-update-cmd": [
-            "@php artisan migrate --path=ext/ai-swordbros/lib/custom/setup/slider",
+            "@php artisan migrate --path=ext/ai-swordbros/lib/custom/setup/slider"
         ]
     }
 }
