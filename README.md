@@ -24,7 +24,7 @@ Add to your composer.json
     "scripts": {
         "post-update-cmd": [
             ...
-            "@php artisan migrate --path=ext/ai-swordbros/lib/custom/setup/slider"
+            "@php artisan migrate --path=ext/sw-slider/lib/custom/setup/slider"
         ]
     }
 
