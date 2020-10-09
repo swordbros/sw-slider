@@ -1,0 +1,22 @@
+{
+	"projectName": "sw-slider",
+	"licenseText": "proprietary",
+	"pkgs": [{
+		"name": "sw-slider CSS",
+		"file": "sw-slider.css",
+		"isDebug": true,
+		"fileIncludes": [{
+			"text": "custom.css",
+			"path": "themes/"
+		}]
+	}, {
+		"name": "sw-slider JS",
+		"file": "sw-slider.js",
+		"isDebug": true,
+		"fileIncludes": [{
+			"text": "custom.js",
+			"path": "themes/"
+		}]
+	}],
+	"resources" : []
+}

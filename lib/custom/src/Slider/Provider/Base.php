@@ -1,0 +1,538 @@
+<?php
+
+/**
+ * @license LGPLv3, http://opensource.org/licenses/LGPL-3.0
+ * @copyright Metaways Infosystems GmbH, 2011
+ * @copyright Aimeos (aimeos.org), 2015-2020
+ * @package MShop
+ * @subpackage Slider
+ */
+
+
+namespace Aimeos\MShop\Slider\Provider;
+
+
+/**
+ * Abstract class for all slider provider implementations with some default methods.
+ *
+ * @package MShop
+ * @subpackage Slider
+ */
+abstract class Base implements Iface
+{
+	private $object;
+	private $context;
+	private $sliderItem;
+	private $beGlobalConfig;
+
+
+	/**
+	 * Initializes the slider provider object.
+	 *
+	 * @param \Aimeos\MShop\Context\Item\Iface $context Context object with required objects
+	 * @param \Aimeos\MShop\Slider\Item\Iface $sliderItem Slider item with configuration for the provider
+	 */
+	public function __construct( \Aimeos\MShop\Context\Item\Iface $context, \Aimeos\MShop\Slider\Item\Iface $sliderItem )
+	{
+		$this->context = $context;
+		$this->sliderItem = $sliderItem;
+	}
+
+
+	/**
+	 * Catch unknown methods
+	 *
+	 * @param string $name Name of the method
+	 * @param array $param List of method parameter
+	 * @throws \Aimeos\MShop\Slider\Exception If method call failed
+	 */
+	public function __call( string $name, array $param )
+	{
+		throw new \Aimeos\MShop\Slider\Exception( sprintf( 'Unable to call method "%1$s"', $name ) );
+	}
+
+
+	/**
+	 * Returns the price when using the provider.
+	 * Usually, this is the lowest price that is available in the slider item but can also be a calculated based on
+	 * the basket content, e.g. 2% of the value as transaction cost.
+	 *
+	 * @param \Aimeos\MShop\Order\Item\Base\Iface $basket Basket object
+	 * @return \Aimeos\MShop\Price\Item\Iface Price item containing the price, shipping, rebate
+	 */
+	public function calcPrice( \Aimeos\MShop\Order\Item\Base\Iface $basket ) : \Aimeos\MShop\Price\Item\Iface
+	{
+		$manager = \Aimeos\MShop::create( $this->context, 'price' );
+		$prices = $this->sliderItem->getRefItems( 'price', 'default', 'default' );
+
+		return $prices->isEmpty() ? $manager->createItem() : $manager->getLowestPrice( $prices, 1 );
+	}
+
+
+	/**
+	 * Checks the backend configuration attributes for validity.
+	 *
+	 * @param array $attributes Attributes added by the shop owner in the administraton interface
+	 * @return array An array with the attribute keys as key and an error message as values for all attributes that are
+	 * 	known by the provider but aren't valid resp. null for attributes whose values are OK
+	 */
+	public function checkConfigBE( array $attributes ) : array
+	{
+		return [];
+	}
+
+
+	/**
+	 * Checks the frontend configuration attributes for validity.
+	 *
+	 * @param array $attributes Attributes entered by the customer during the checkout process
+	 * @return array An array with the attribute keys as key and an error message as values for all attributes that are
+	 * 	known by the provider but aren't valid resp. null for attributes whose values are OK
+	 */
+	public function checkConfigFE( array $attributes ) : array
+	{
+		return [];
+	}
+
+
+	/**
+	 * Returns the configuration attribute definitions of the provider to generate a list of available fields and
+	 * rules for the value of each field in the administration interface.
+	 *
+	 * @return array List of attribute definitions implementing \Aimeos\MW\Common\Critera\Attribute\Iface
+	 */
+	public function getConfigBE() : array
+	{
+		return [];
+	}
+
+
+	/**
+	 * Returns the configuration attribute definitions of the provider to generate a list of available fields and
+	 * rules for the value of each field in the frontend.
+	 *
+	 * @param \Aimeos\MShop\Order\Item\Base\Iface $basket Basket object
+	 * @return array List of attribute definitions implementing \Aimeos\MW\Common\Critera\Attribute\Iface
+	 */
+	public function getConfigFE( \Aimeos\MShop\Order\Item\Base\Iface $basket ) : array
+	{
+		return [];
+	}
+
+
+	/**
+	 * Returns the slider item which also includes the configuration for the slider provider.
+	 *
+	 * @return \Aimeos\MShop\Slider\Item\Iface Slider item
+	 */
+	public function getSliderItem() : \Aimeos\MShop\Slider\Item\Iface
+	{
+		return $this->sliderItem;
+	}
+
+
+	/**
+	 * Injects additional global configuration for the backend.
+	 *
+	 * It's used for adding additional backend configuration from the application
+	 * like the URLs to redirect to.
+	 *
+	 * Supported redirect URLs are:
+	 * - payment.url-success
+	 * - payment.url-failure
+	 * - payment.url-cancel
+	 * - payment.url-update
+	 *
+	 * @param array $config Associative list of config keys and their value
+	 * @return \Aimeos\MShop\Slider\Provider\Iface Provider object for chaining method calls
+	 */
+	public function injectGlobalConfigBE( array $config ) : \Aimeos\MShop\Slider\Provider\Iface
+	{
+		$this->beGlobalConfig = $config;
+		return $this;
+	}
+
+
+	/**
+	 * Checks if payment provider can be used based on the basket content.
+	 * Checks for country, currency, address, RMS, etc. -> in separate decorators
+	 *
+	 * @param \Aimeos\MShop\Order\Item\Base\Iface $basket Basket object
+	 * @return bool True if payment provider can be used, false if not
+	 */
+	public function isAvailable( \Aimeos\MShop\Order\Item\Base\Iface $basket ) : bool
+	{
+		return true;
+	}
+
+
+	/**
+	 * Checks what features the payment provider implements.
+	 *
+	 * @param int $what Constant from abstract class
+	 * @return bool True if feature is available in the payment provider, false if not
+	 */
+	public function isImplemented( int $what ) : bool
+	{
+		return false;
+	}
+
+
+	/**
+	 * Queries for status updates for the given order if supported.
+	 *
+	 * @param \Aimeos\MShop\Order\Item\Iface $order Order invoice object
+	 * @return \Aimeos\MShop\Order\Item\Iface Updated order item object
+	 */
+	public function query( \Aimeos\MShop\Order\Item\Iface $order ) : \Aimeos\MShop\Order\Item\Iface
+	{
+		throw new \Aimeos\MShop\Slider\Exception( sprintf( 'Method "%1$s" for provider not available', 'query' ) );
+	}
+
+
+	/**
+	 * Injects the outer object into the decorator stack
+	 *
+	 * @param \Aimeos\MShop\Plugin\Provider\Iface $object First object of the decorator stack
+	 * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for chaining method calls
+	 */
+	public function setObject( \Aimeos\MShop\Plugin\Provider\Iface $object ) : \Aimeos\MShop\Plugin\Provider\Iface
+	{
+		$this->object = $object;
+		return $this;
+	}
+
+
+	/**
+	 * Looks for new update files and updates the orders for which status updates were received.
+	 * If batch processing of files isn't supported, this method can be empty.
+	 *
+	 * @return bool True if the update was successful, false if async updates are not supported
+	 * @throws \Aimeos\MShop\Slider\Exception If updating one of the orders failed
+	 */
+	public function updateAsync() : bool
+	{
+		return false;
+	}
+
+
+	/**
+	 * Updates the order status sent by payment gateway notifications
+	 *
+	 * @param \Psr\Http\Message\ServerRequestInterface $request Request object
+	 * @param \Psr\Http\Message\ResponseInterface $response Response object
+	 * @return \Psr\Http\Message\ResponseInterface Response object
+	 */
+	public function updatePush( \Psr\Http\Message\ServerRequestInterface $request,
+		\Psr\Http\Message\ResponseInterface $response ) : \Psr\Http\Message\ResponseInterface
+	{
+		return $response->withStatus( 501, 'Not implemented' );
+	}
+
+
+	/**
+	 * Updates the orders for whose status updates have been received by the confirmation page
+	 *
+	 * @param \Psr\Http\Message\ServerRequestInterface $request Request object with parameters and request body
+	 * @param \Aimeos\MShop\Order\Item\Iface $order Order item that should be updated
+	 * @return \Aimeos\MShop\Order\Item\Iface Updated order item
+	 * @throws \Aimeos\MShop\Slider\Exception If updating the orders failed
+	 */
+	public function updateSync( \Psr\Http\Message\ServerRequestInterface $request,
+		\Aimeos\MShop\Order\Item\Iface $order ) : \Aimeos\MShop\Order\Item\Iface
+	{
+		return $order;
+	}
+
+
+	/**
+	 * Checks required fields and the types of the given data map
+	 *
+	 * @param array $criteria Multi-dimensional associative list of criteria configuration
+	 * @param array $map Values to check agains the criteria
+	 * @return array An array with the attribute keys as key and an error message as values for all attributes that are
+	 * 	known by the provider but aren't valid resp. null for attributes whose values are OK
+	 */
+	protected function checkConfig( array $criteria, array $map ) : array
+	{
+		$helper = new \Aimeos\MShop\Common\Helper\Config\Standard( $this->getConfigItems( $criteria ) );
+		return $helper->check( $map );
+	}
+
+
+	/**
+	 * Returns the criteria attribute items for the backend configuration
+	 *
+	 * @return \Aimeos\MW\Criteria\Attribute\Iface[] List of criteria attribute items
+	 */
+	protected function getConfigItems( array $configList ) : array
+	{
+		$list = [];
+
+		foreach( $configList as $key => $config ) {
+			$list[$key] = new \Aimeos\MW\Criteria\Attribute\Standard( $config );
+		}
+
+		return $list;
+	}
+
+
+	/**
+	 * Returns the configuration value that matches one of the given keys.
+	 *
+	 * The config of the slider item and (optionally) the global config
+	 * is tested in the order of the keys. The first one that matches will
+	 * be returned.
+	 *
+	 * @param array|string $keys Key name or list of key names that should be tested for in the order to test
+	 * @param mixed $default Returned value if the key wasn't was found
+	 * @return mixed Value of the first key that matches or null if none was found
+	 */
+	protected function getConfigValue( $keys, $default = null )
+	{
+		foreach( (array) $keys as $key )
+		{
+			if( ( $value = $this->getSliderItem()->getConfigValue( $key ) ) !== null ) {
+				return $value;
+			}
+
+			if( isset( $this->beGlobalConfig[$key] ) ) {
+				return $this->beGlobalConfig[$key];
+			}
+		}
+
+		return $default;
+	}
+
+
+	/**
+	 * Returns the context item.
+	 *
+	 * @return \Aimeos\MShop\Context\Item\Iface Context item
+	 */
+	protected function getContext() : \Aimeos\MShop\Context\Item\Iface
+	{
+		return $this->context;
+	}
+
+
+	/**
+	 * Returns the calculated amount of the price item
+	 *
+	 * @param \Aimeos\MShop\Price\Item\Iface $price Price item
+	 * @param bool $costs Include costs per item
+	 * @param bool $tax Include tax
+	 * @param int $precision Number for decimal digits
+	 * @return string Formatted money amount
+	 */
+	protected function getAmount( \Aimeos\MShop\Price\Item\Iface $price, bool $costs = true, bool $tax = true,
+		int $precision = null ) : string
+	{
+		$amount = $price->getValue();
+
+		if( $costs === true ) {
+			$amount += $price->getCosts();
+		}
+
+		if( $tax === true && $price->getTaxFlag() === false )
+		{
+			$tmp = clone $price;
+
+			if( $costs === false )
+			{
+				$tmp->clear();
+				$tmp->setValue( $price->getValue() );
+				$tmp->setTaxRate( $price->getTaxRate() );
+				$tmp->setQuantity( $price->getQuantity() );
+			}
+
+			$amount += $tmp->getTaxValue();
+		}
+
+		return number_format( $amount, $precision !== null ? $precision : $price->getPrecision(), '.', '' );
+	}
+
+
+	/**
+	 * Returns the order slider matching the given code from the basket
+	 *
+	 * @param \Aimeos\MShop\Order\Item\Base\Iface $basket Basket object
+	 * @param string $type Slider type constant from \Aimeos\MShop\Order\Item\Slider\Base
+	 * @param string $code Code of the slider item that should be returned
+	 * @return \Aimeos\MShop\Order\Item\Base\Slider\Iface Order slider item
+	 * @throws \Aimeos\MShop\Order\Exception If no slider for the given type and code is found
+	 */
+	protected function getBasketSlider( \Aimeos\MShop\Order\Item\Base\Iface $basket, string $type,
+		string $code ) : \Aimeos\MShop\Order\Item\Base\Slider\Iface
+	{
+		foreach( $basket->getSlider( $type ) as $slider )
+		{
+			if( $slider->getCode() === $code ) {
+				return $slider;
+			}
+		}
+
+		throw new \Aimeos\MShop\Slider\Exception( sprintf( 'Slider not available' ) );
+	}
+
+
+	/**
+	 * Returns the first object of the decorator stack
+	 *
+	 * @return \Aimeos\MShop\Slider\Provider\Iface First object of the decorator stack
+	 */
+	protected function getObject() : \Aimeos\MShop\Slider\Provider\Iface
+	{
+		if( $this->object !== null ) {
+			return $this->object;
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Returns the order item for the given ID.
+	 *
+	 * @param string $id Unique order ID
+	 * @return \Aimeos\MShop\Order\Item\Iface $item Order object
+	 */
+	protected function getOrder( string $id ) : \Aimeos\MShop\Order\Item\Iface
+	{
+		$manager = \Aimeos\MShop::create( $this->context, 'order' );
+
+		$search = $manager->createSearch();
+		$expr = [
+			$search->compare( '==', 'order.id', $id ),
+			$search->compare( '==', 'order.base.slider.code', $this->sliderItem->getCode() ),
+		];
+		$search->setConditions( $search->combine( '&&', $expr ) );
+
+		if( ( $item = $manager->searchItems( $search )->first() ) === null ) {
+			throw new \Aimeos\MShop\Slider\Exception( sprintf( 'No order for ID "%1$s" found', $id ) );
+		}
+
+		return $item;
+	}
+
+
+	/**
+	 * Returns the base order which is equivalent to the basket.
+	 *
+	 * @param string $baseId Order base ID stored in the order item
+	 * @param int $parts Bitmap of the basket parts that should be loaded
+	 * @return \Aimeos\MShop\Order\Item\Base\Iface Basket, optional with addresses, products, sliders and coupons
+	 */
+	protected function getOrderBase( string $baseId,
+		int $parts = \Aimeos\MShop\Order\Item\Base\Base::PARTS_SERVICE ) : \Aimeos\MShop\Order\Item\Base\Iface
+	{
+		return \Aimeos\MShop::create( $this->context, 'order/base' )->load( $baseId, $parts );
+	}
+
+
+	/**
+	 * Saves the order item.
+	 *
+	 * @param \Aimeos\MShop\Order\Item\Iface $item Order object
+	 * @return \Aimeos\MShop\Order\Item\Iface Order object including the generated ID
+	 */
+	protected function saveOrder( \Aimeos\MShop\Order\Item\Iface $item ) : \Aimeos\MShop\Order\Item\Iface
+	{
+		return \Aimeos\MShop::create( $this->context, 'order' )->saveItem( $item );
+	}
+
+
+	/**
+	 * Returns the slider related data from the customer account if available
+	 *
+	 * @param string $customerId Unique customer ID the slider token belongs to
+	 * @param string $type Type of the value that should be returned
+	 * @return array|string|null Slider data or null if none is available
+	 */
+	protected function getCustomerData( string $customerId, string $type )
+	{
+		if( $customerId != null )
+		{
+			$manager = \Aimeos\MShop::create( $this->getContext(), 'customer' );
+			$item = $manager->getItem( $customerId, ['slider'] );
+			$sliderId = $this->getSliderItem()->getId();
+
+			if( ( $listItem = $item->getListItem( 'slider', 'default', $sliderId ) ) !== null ) {
+				return $listItem->getConfigValue( $type );
+			}
+		}
+
+		return null;
+	}
+
+
+	/**
+	 * Saves the base order which is equivalent to the basket and its dependent objects.
+	 *
+	 * @param \Aimeos\MShop\Order\Item\Base\Iface $base Order base object with associated items
+	 * @param int $parts Bitmap of the basket parts that should be stored
+	 * @return \Aimeos\MShop\Order\Item\Base\Iface Stored order base item
+	 */
+	protected function saveOrderBase( \Aimeos\MShop\Order\Item\Base\Iface $base,
+		int $parts = \Aimeos\MShop\Order\Item\Base\Base::PARTS_SERVICE ) : \Aimeos\MShop\Order\Item\Base\Iface
+	{
+		return \Aimeos\MShop::create( $this->context, 'order/base' )->store( $base, $parts );
+	}
+
+
+	/**
+	 * Sets the attributes in the given slider item.
+	 *
+	 * @param \Aimeos\MShop\Order\Item\Base\Slider\Iface $orderSliderItem Order slider item that will be added to the basket
+	 * @param array $attributes Attribute key/value pairs entered by the customer during the checkout process
+	 * @param string $type Type of the configuration values (delivery or payment)
+	 * @return \Aimeos\MShop\Order\Item\Base\Slider\Iface Modified order slider item
+	 */
+	protected function setAttributes( \Aimeos\MShop\Order\Item\Base\Slider\Iface $orderSliderItem, array $attributes,
+		string $type ) : \Aimeos\MShop\Order\Item\Base\Slider\Iface
+	{
+		$manager = \Aimeos\MShop::create( $this->context, 'order/base/slider/attribute' );
+
+		foreach( $attributes as $key => $value )
+		{
+			$item = $manager->createItem();
+			$item->setCode( $key );
+			$item->setValue( $value );
+			$item->setType( $type );
+
+			$orderSliderItem->setAttributeItem( $item );
+		}
+
+		return $orderSliderItem;
+	}
+
+
+	/**
+	 * Adds the slider data to the customer account if available
+	 *
+	 * @param string $customerId Unique customer ID the slider token belongs to
+	 * @param string $type Type of the value that should be added
+	 * @param string|array $data Slider data to store
+	 * @param \Aimeos\MShop\Slider\Provider\Iface Provider object for chaining method calls
+	 */
+	protected function setCustomerData( string $customerId, string $type, $data ) : \Aimeos\MShop\Slider\Provider\Iface
+	{
+		if( $customerId != null )
+		{
+			$manager = \Aimeos\MShop::create( $this->getContext(), 'customer' );
+			$item = $manager->getItem( $customerId, ['slider'] );
+			$sliderId = $this->getSliderItem()->getId();
+
+			if( ( $listItem = $item->getListItem( 'slider', 'default', $sliderId, false ) ) === null )
+			{
+				$listManager = \Aimeos\MShop::create( $this->getContext(), 'customer/lists' );
+				$listItem = $listManager->createItem()->setType( 'default' )->setRefId( $sliderId );
+			}
+
+			$listItem->setConfig( array_merge( $listItem->getConfig(), [$type => $data] ) );
+			$manager->saveItem( $item->addListItem( 'slider', $listItem ) );
+		}
+
+		return $this;
+	}
+}
