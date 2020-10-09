@@ -33,10 +33,5 @@
 			"controller/jobs/src",
 			"lib/custom/src"
 		]
-	},
-    "scripts": {
-        "post-update-cmd": [
-            "@php artisan migrate --path=ext/ai-swordbros/lib/custom/setup/slider"
-        ]
-    }
+	}
 }

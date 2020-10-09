@@ -423,7 +423,7 @@ class Standard
 		 * @since 2017.10
 		 * @category Developer
 		 */
-		return $this->getContext()->getConfig()->get( 'slider/domains', [] );
+		return $this->getContext()->getConfig()->get( 'mshop/domains', [] );
 	}
 
 
@@ -467,7 +467,7 @@ class Standard
 		 * @since 2017.10
 		 * @category Developer
 		 */
-		return $this->getContext()->getConfig()->get( 'slider/standard/subparts', [] );
+		return $this->getContext()->getConfig()->get( 'mshop/standard/subparts', [] );
 	}
 
 

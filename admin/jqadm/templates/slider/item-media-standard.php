@@ -8,7 +8,7 @@
 $enc = $this->encoder();
 $items =  $this->get( 'mediaData', []  );
 foreach($items as $data_item_key=>$data_item){
-    foreach(SwH::get_languages() as $language){
+    foreach(Swh::get_languages() as $language){
         if(isset($data_item['slider.lists.config'])){
             if(isset($data_item['slider.lists.config']['content-'.$language['langid']])){
                 $content = $data_item['slider.lists.config']['content-'.$language['langid']];

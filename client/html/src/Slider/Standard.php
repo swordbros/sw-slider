@@ -46,8 +46,8 @@ class Standard
 		{
 			$view = $this->getView();
             
-			$tplconf = 'client/html/slider/standard/template-body';
-			$default = 'slider/body-standard';
+			$tplconf = 'client/html/sw-slider/standard/template-body';
+			$default = 'sw-slider/body-cover-flow';
 
 			try
 			{
@@ -60,8 +60,7 @@ class Standard
 					$html .= $subclient->setView( $view )->getBody( $uid );
 				}
 				$view->listBody = $html;
-                
-$default = 'slider/body-'.$view->sliderType;
+                $default = 'sw-slider/body-'.$view->sliderType;                
 				$html = $view->render( $this->getTemplatePath( $tplconf, $default ) );
 				$this->setCached( 'body', $uid, $prefixes, $confkey, $html, $this->tags, $this->expire );
 
@@ -88,6 +87,7 @@ $default = 'slider/body-'.$view->sliderType;
 				$view->listErrorList = array_merge( $view->get( 'listErrorList', [] ), $error );
 				$this->logException( $e );
 			}
+        
             if(isset($e)) echo $e->getMessage();
 			$html = $view->render( $this->getTemplatePath( $tplconf, $default ) );
 		}
@@ -115,8 +115,8 @@ $default = 'slider/body-'.$view->sliderType;
 		{
 			$view = $this->getView();
 
-			$tplconf = 'client/html/slider/standard/template-header';
-			$default = 'slider/header-standard';
+			$tplconf = 'client/html/sw-slider/standard/template-header';
+			$default = 'sw-slider/header-standard';
 
 			try
 			{
