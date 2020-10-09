@@ -1,6 +1,6 @@
 {
-	"name": "aimeos/sw-slider",
-	"description": "Aimeos sw-slider extension",
+	"name": "swordbros/sw-slider",
+	"description": "Swordbros sw-slider extension for Aimeos",
 	"keywords": ["aimeos", "extension"],
 	"type": "aimeos-extension",
 	"license": "LGPL-3.0",
