@@ -1,4 +1,4 @@
-# Swordbros Slider For Aimeos Extensions acquiring for PHP 
+# Swordbros Slider For Aimeos Extensions
 [![License](https://poser.pugx.org/swordbros/omnipay-sberbank/license)](//packagist.org/packages/swordbros/omnipay-sberbank)
 # Introduction
 
