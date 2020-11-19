@@ -35,6 +35,10 @@ Add your template blade file this code. Setup include demo slider data.
 ```
   <?php  echo \Aimeos\Shop\Facades\Shop::get('swordbros/slider')->getBody() ?>
 ```
+# If you only want to get data for your template file
+```
+ $slider_data = \Aimeos\Shop\Facades\Shop::get('swordbros/slider')->addData($this);
+```
 ## Standart Slider
 ![Slider Standard](https://tulparstudyo.net/images/slider-standart.png)
 ## Cover Flow Slider
