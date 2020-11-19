@@ -145,7 +145,6 @@ $columnList = [
 				$this->config( 'admin/jqadm/partial/listsearch', 'common/partials/listsearch-standard' ), [
 					'fields' => array_merge( $fields, ['select'] ), 'filter' => $this->session( 'aimeos/admin/jqadm/type/slider/filter', [] ),
 					'data' => [
-						'select' => ['type' => 'checkbox'],
 						'slider.type.id' => ['op' => '=='],
 						'slider.type.domain' => ['op' => '==', 'type' => 'select', 'val' => [
 							'product' => $this->translate( 'admin', 'product' ),

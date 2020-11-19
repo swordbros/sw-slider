@@ -48,7 +48,7 @@ $delConfig = $this->config( 'admin/jqadm/url/delete/config', [] );
  * @since 2017.07
  * @category Developer
  */
-$default = ['slider.status', 'slider.type', 'slider.label', 'slider.provider', 'slider.domain'];
+$default = ['slider.status', 'slider.type', 'slider.label'];
 $default = $this->config( 'admin/jqadm/slider/fields', $default );
 $fields = $this->session( 'aimeos/admin/jqadm/slider/fields', $default );
 
@@ -145,7 +145,6 @@ $columnList = [
 				$this->config( 'admin/jqadm/partial/listsearch', 'common/partials/listsearch-standard' ), [
 					'fields' => array_merge( $fields, ['select'] ), 'filter' => $this->session( 'aimeos/admin/jqadm/slider/filter', [] ),
 					'data' => [
-						'select' => ['type' => 'checkbox'],
 						'slider.id' => ['op' => '=='],
 						'slider.status' => ['op' => '==', 'type' => 'select', 'val' => [
 							'1' => $this->translate( 'mshop/code', 'status:1' ),

@@ -9,9 +9,7 @@ return array(
 		],
 		'standard' => [
 			'subparts' => [
-				'media' => 'media',
-				'text' => 'text',
-				/*'price' => 'price'*/
+				'media' => 'media'
 			],
 		],
 		'media' => [

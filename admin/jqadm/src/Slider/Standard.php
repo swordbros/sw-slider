@@ -33,11 +33,8 @@ class Standard
 	{
 		$ds = DIRECTORY_SEPARATOR;
 
-		$view->itemDecorators = $this->getClassNames( 'MShop' . $ds . 'Slider' . $ds . 'Provider' . $ds . 'Decorator' );
-		$view->itemProviders = [
-			'delivery' => $this->getClassNames( 'MShop' . $ds . 'Slider' . $ds . 'Provider' . $ds . 'Delivery' ),
-			'payment' => $this->getClassNames( 'MShop' . $ds . 'Slider' . $ds . 'Provider' . $ds . 'Payment' ),
-		];
+		$view->itemDecorators = [];
+		$view->itemProviders = [];
 
 		$view->itemSubparts = $this->getSubClientNames();
 		$view->itemTypes = $this->getTypeItems();

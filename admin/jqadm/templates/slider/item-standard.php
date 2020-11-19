@@ -89,21 +89,8 @@ $params = $this->get( 'pageParams', [] );
 			<div id="basic" class="row item-basic tab-pane fade show active" role="tabpanel" aria-labelledby="basic">
 
 				<div class="col-xl-6 content-block <?= $this->site()->readonly( $this->get( 'itemData/slider.siteid' ) ); ?>">
-					<div class="form-group row mandatory">
-						<label class="col-sm-4 form-control-label"><?= $enc->html( $this->translate( 'admin', 'Domain' ) ); ?></label>
-						<div class="col-sm-8">
-							<select class="form-control custom-select item-domain" required="required" tabindex="1"
-								name="<?= $enc->attr( $this->formparam( array( 'item', 'slider.domain' ) ) ); ?>"
-								<?= $this->site()->readonly( $this->get( 'itemData/slider.siteid' ) ); ?> >
+				<input type="hidden" name="item[slider.domain]" value="media">
 
-								<?php foreach( ['product', 'media', 'text', 'catalog'] as $domain ) : ?>
-									<option value="<?= $enc->attr( $domain ); ?>" <?= $selected( $this->get( 'itemData/slider.domain', 'product' ), $domain ); ?> >
-										<?= $enc->html( $this->translate( 'admin', $domain ) ); ?>
-									</option>
-								<?php endforeach; ?>
-							</select>
-						</div>
-					</div>
 					<div class="form-group row mandatory">
 						<label class="col-sm-4 form-control-label"><?= $enc->html( $this->translate( 'admin', 'Status' ) ); ?></label>
 						<div class="col-sm-8">
