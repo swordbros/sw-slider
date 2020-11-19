@@ -35,7 +35,7 @@ Add your template blade file this code. Setup include demo slider data.
 ```
   <?php  echo \Aimeos\Shop\Facades\Shop::get('swordbros/slider')->getBody() ?>
 ```
-# If you only want to get data for your template file
+# If you want to get only data for your template file
 ```
  $slider_data = \Aimeos\Shop\Facades\Shop::get('swordbros/slider')->addData($this);
 ```
