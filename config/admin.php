@@ -3,16 +3,14 @@
 return [
       'jqadm' => [
         'navbar' => [
-            'swordbros'=>['swordbros/slider']
+            'sw-slider'=>['swordbros/slider']
          ],
         'resource' =>[
-            'swordbros' => [
                 'groups' => ['admin', 'editor', 'super'],
-                'slider' =>[
+                'sw-slider' =>[
                     'groups' => ['admin', 'editor', 'super'],
                     'key' => 'SS',
                 ],
-            ],
         ],
     ],
 	'jsonadm' => [
