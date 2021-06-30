@@ -20,17 +20,26 @@ foreach($items as $data_item_key=>$data_item){
             } else{
                 $url = false;
             }
+            if(isset($data_item['slider.lists.config']['button_text-'.$language['langid']])){
+                $button_text = $data_item['slider.lists.config']['button_text-'.$language['langid']];
+            } else{
+                $button_text = false;
+            }
         } else{
             $content = false;
             $url = false;
+            $button_text = false;
         }
         $data_item['slider.lists.config']['content-'.$language['langid']] = $content;
         $data_item['slider.lists.config']['url-'.$language['langid']] = $url;
         if($content === false){
-            $data_item['config'][] = array('key'=>'content-'.$language['langid'], 'val'=>'' ); 
+            $data_item['config'][] = array('key'=>'content-'.$language['langid'], 'val'=>'' );
         }
         if($url === false){
-            $data_item['config'][] = array('key'=>'url-'.$language['langid'], 'val'=>'' ); 
+            $data_item['config'][] = array('key'=>'url-'.$language['langid'], 'val'=>'' );
+        }
+        if($button_text === false){
+            $data_item['config'][] = array('key'=>'button_text-'.$language['langid'], 'val'=>'' );
         }
         $items[$data_item_key] = $data_item;
     }

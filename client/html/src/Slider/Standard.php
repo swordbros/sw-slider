@@ -45,7 +45,7 @@ class Standard
 		if( ( $html = $this->getCached( 'body', $uid, $prefixes, $confkey ) ) === null )
 		{
 			$view = $this->getView();
-            
+
 			$tplconf = 'client/html/sw-slider/standard/template-body';
 			$default = 'sw-slider/body-cover-flow';
 
@@ -60,7 +60,7 @@ class Standard
 					$html .= $subclient->setView( $view )->getBody( $uid );
 				}
 				$view->listBody = $html;
-                $default = 'sw-slider/body-'.$view->sliderType;                
+                $default = 'sw-slider/body-'.$view->sliderType;
 				$html = $view->render( $this->getTemplatePath( $tplconf, $default ) );
 				$this->setCached( 'body', $uid, $prefixes, $confkey, $html, $this->tags, $this->expire );
 
@@ -87,7 +87,7 @@ class Standard
 				$view->listErrorList = array_merge( $view->get( 'listErrorList', [] ), $error );
 				$this->logException( $e );
 			}
-        
+
             if(isset($e)) echo $e->getMessage();
 			$html = $view->render( $this->getTemplatePath( $tplconf, $default ) );
 		}
@@ -247,43 +247,69 @@ class Standard
 
 		$domains = array( 'text', 'media' ) ;
         $items = [];
+		$listitems=[];
+
         $sliderType = 'standard';
 		$rows = \Aimeos\Controller\Frontend::create( $this->getContext(), 'slider' )
 			->uses( $domains )->type( $attrTypes )->compare( '!=', 'slider.type', ['date', 'price', 'text'] )
 			->sort( 'position' )->slice( 0, 10000 )->search();
         if($rows){
-            foreach($rows->toArray() as $row ){ 
-                $sliderType = $row->get('slider.type');
-                foreach($row->getListItems() as $item){ 
+            foreach($rows->toArray() as $row ){
 
-                    $refItem = $item->getRefItem();
-                    if($refItem){
-                        $image_url = $refItem->get('media.url');
-                        if($image_url){
-                            $langid = $this->getContext()->getLocale()->getLanguageId();
-                            $config = $item->getConfig();
-                            $content = isset($config['content-'.$langid])?$config['content-'.$langid]:'';
-                            $url = isset($config['url-'.$langid])?$config['url-'.$langid]:'';
-                            $items[] = ['image_url'=>$image_url, 'content'=>$content, 'url'=>$url];
-                        }
-                    }
-                    /*
-                    if($refItem->get('text.languageid') == $context->getLocale()->getLanguageId() ){
-                        $view->label =  $refItem->get('text.label');
-                        $view->content =  $refItem->get('text.content');
-                    }*/
-                }
+                $sliderType = $row->get('slider.type');
+				if($sliderType == "list-banner"){
+					foreach($row->getListItems() as $item){
+
+						$refItem = $item->getRefItem();
+						if($refItem){
+							$list_banner_url = $refItem->get('media.url');
+							if($list_banner_url){
+								$langid = $this->getContext()->getLocale()->getLanguageId();
+								$config = $item->getConfig();
+								$content = isset($config['content-'.$langid])?$config['content-'.$langid]:'';
+								$url = isset($config['url-'.$langid])?$config['url-'.$langid]:'';
+								$button_text = isset($config['button_text-'.$langid])?$config['button_text-'.$langid]:'';
+								$listitems[] = ['list_banner_url'=>$list_banner_url, 'content'=>$content, 'url'=>$url, 'button_text'=>$button_text];
+							}
+						}
+
+					}
+				}
+				else{
+					foreach($row->getListItems() as $item){
+
+						$refItem = $item->getRefItem();
+						if($refItem){
+							$image_url = $refItem->get('media.url');
+							if($image_url){
+								$langid = $this->getContext()->getLocale()->getLanguageId();
+								$config = $item->getConfig();
+								$content = isset($config['content-'.$langid])?$config['content-'.$langid]:'';
+								$url = isset($config['url-'.$langid])?$config['url-'.$langid]:'';
+                                $button_text = isset($config['button_text-'.$langid])?$config['button_text-'.$langid]:'';
+								$items[] = ['image_url'=>$image_url, 'content'=>$content, 'url'=>$url, 'button_text'=>$button_text];
+							}
+						}
+
+					}
+
+
+
+				}
+
             }
         }
+
         $view->sliderType = $sliderType;
         $view->items = $items;
-        
+		$view->listitems = $listitems;
+
 		// Delete cache when attributes are added or deleted even in "tag-all" mode
 		$params = $this->getClientParams( $view->param() );
 
 		$view->attributeResetParams = $params;
 
 		return parent::addData( $view, $tags, $expire );
-	
+
     }
 }
